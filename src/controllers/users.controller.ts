@@ -21,7 +21,7 @@ class UserController {
       });
 
       return res.status(201).json(newUser);
-    } catch (error) {
+    } catch (error: Error | any) {
       return res.status(400).json({ error: error.message });
     }
   }
@@ -37,7 +37,7 @@ class UserController {
       }
 
       return res.status(200).json(user);
-    } catch (error) {
+    } catch (error: Error | any) {
       return res.status(500).json({ error: error.message });
     }
   }
