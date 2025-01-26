@@ -1,4 +1,5 @@
 import { Database } from 'sqlite';
+import bcrypt from 'bcrypt';
 
 import { CreateUserDTO, User } from '../types/user';
 import connectDB from '../database/database';
@@ -29,8 +30,9 @@ class UserService {
     const {
       fullName, email, password, userType, createdAt,
     } = user;
-
-    const newCreatedAt = createdAt || new Date().toString();
+    const newCreatedAt = createdAt || UserService.formatDate(new Date());
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
 
     const emailExists = await this.db.get('SELECT id FROM users WHERE email = ?', [
       email,
@@ -40,7 +42,7 @@ class UserService {
 
     const newUser = await this.db.run(
       'INSERT INTO users (fullName, email, password, userType, createdAt) VALUES (?, ?, ?, ?, ?)',
-      [fullName, email, password, userType, newCreatedAt],
+      [fullName, email, hashedPassword, userType, newCreatedAt],
     );
 
     if (newUser.lastID === undefined) {
@@ -68,6 +70,19 @@ class UserService {
     );
 
     return user || null;
+  }
+
+  static formatDate(date: Date): string {
+    const padTo2Digits = (num: number): string => num.toString().padStart(2, '0');
+
+    const year = date.getFullYear();
+    const month = padTo2Digits(date.getMonth() + 1);
+    const day = padTo2Digits(date.getDate());
+    const hours = padTo2Digits(date.getHours());
+    const minutes = padTo2Digits(date.getMinutes());
+    const seconds = padTo2Digits(date.getSeconds());
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   }
 }
 

@@ -28,9 +28,16 @@ const userValidationSchema = Joi.object({
       'string.max': 'Password must be between 8 and 64 characters',
       'any.required': 'Password is required',
     }),
-  createdAt: Joi.date().optional().messages({
-    'date.base': 'Invalid created date format',
-  }),
+  createdAt: Joi.string()
+    .pattern(
+      /^(?:19|20)\d\d-(?:0[1-9]|1[0-2])-(?:0[1-9]|[12][0-9]|3[01]) (?:[01][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]$/,
+      'YYYY-MM-DD HH:MM:SS format',
+    )
+    .optional()
+    .messages({
+      'string.pattern.base':
+        'Invalid date format. Expected YYYY-MM-DD HH:MM:SS',
+    }),
   userType: Joi.string()
     .valid(...Object.values(UserType))
     .required()
