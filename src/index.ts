@@ -1,6 +1,7 @@
 import express, { Express } from 'express';
 
 import router from './routes';
+import connectDB from './database/database';
 
 const app: Express = express();
 const port = process.env.PORT || 3000;
@@ -11,5 +12,7 @@ app.listen(port, () => {
 });
 
 app.use(express.json());
-
 app.use('/api', router);
+
+// eslint-disable-next-line no-console
+connectDB().then(() => console.log('[database]: Database connected and schema synchronized.')).catch((error) => console.error(error));

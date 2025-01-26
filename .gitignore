@@ -1,5 +1,6 @@
 # Ignore node_modules directory
 node_modules/
+src/database/database.sqlite
 
 # Ignore build artifacts
 dist/
