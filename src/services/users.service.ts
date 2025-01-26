@@ -30,9 +30,17 @@ class UserService {
       fullName, email, password, userType, createdAt,
     } = user;
 
+    const newCreatedAt = createdAt || new Date().toString();
+
+    const emailExists = await this.db.get('SELECT id FROM users WHERE email = ?', [
+      email,
+    ]);
+
+    if (emailExists) throw new Error(`User with the provided email = ${email} already exists use a different email address`);
+
     const newUser = await this.db.run(
       'INSERT INTO users (fullName, email, password, userType, createdAt) VALUES (?, ?, ?, ?, ?)',
-      [fullName, email, password, userType, createdAt],
+      [fullName, email, password, userType, newCreatedAt],
     );
 
     if (newUser.lastID === undefined) {
@@ -44,7 +52,7 @@ class UserService {
       fullName,
       email,
       userType,
-      createdAt,
+      createdAt: newCreatedAt,
     };
   }
 
