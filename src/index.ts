@@ -1,18 +1,19 @@
 import express, { Express } from 'express';
+import pinoHttp from 'pino-http';
 
 import router from './routes';
 import connectDB from './database/database';
+import logger from './logger/logger';
 
 const app: Express = express();
 const port = process.env.PORT || 3000;
 
 app.listen(port, () => {
-  // eslint-disable-next-line no-console
-  console.log(`[server]: Server is running at http://localhost:${port}`);
+  logger.info(`[server]: Server is running at http://localhost:${port}`);
 });
 
+app.use(pinoHttp({ logger }));
 app.use(express.json());
 app.use('/api', router);
 
-// eslint-disable-next-line no-console
-connectDB(true).then(() => console.log('[database]: Database connected and schema synchronized.')).catch((error) => console.error(error));
+connectDB(true).then(() => logger.info('Database connected and schema synchronized.')).catch((error) => logger.error(error));

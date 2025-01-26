@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 
 import UserService from '../services/users.service';
 import userValidationSchema from '../database/userSchema';
+import logger from '../logger/logger';
 
 class UserController {
   private userService: UserService;
@@ -39,6 +40,7 @@ class UserController {
 
       return res.status(201).json(newUser);
     } catch (error: Error | any) {
+      logger.error(error);
       return res.status(500).json({ error: error.message });
     }
   }
@@ -59,6 +61,7 @@ class UserController {
 
       return res.status(200).json(user);
     } catch (error: Error | any) {
+      logger.error(error);
       return res.status(500).json({ error: error.message });
     }
   }

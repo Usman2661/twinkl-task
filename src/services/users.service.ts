@@ -3,6 +3,7 @@ import bcrypt from 'bcrypt';
 
 import { CreateUserDTO, User } from '../types/user';
 import connectDB from '../database/database';
+import logger from '../logger/logger';
 
 class UserService {
   private db: Database | undefined;
@@ -15,7 +16,7 @@ class UserService {
         this.db = db;
       })
       .catch((error) => {
-        console.error('Error connecting to the database:', error.message);
+        logger.error('Error connecting to the database:', error.message);
         this.dbConnectionError = error.message;
       });
   }

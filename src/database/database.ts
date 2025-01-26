@@ -1,6 +1,7 @@
 import sqlite3 from 'sqlite3';
 
 import { open, Database } from 'sqlite';
+import logger from '../logger/logger';
 
 const connectDB = async (
   createSchema: boolean = false,
@@ -26,7 +27,7 @@ const connectDB = async (
 
     return db;
   } catch (error) {
-    console.error(error);
+    logger.error(error);
     throw error;
   }
 };
