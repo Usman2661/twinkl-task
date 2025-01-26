@@ -4,6 +4,8 @@ import bcrypt from 'bcrypt';
 import { CreateUserDTO, User } from '../types/user';
 import connectDB from '../database/database';
 import logger from '../logger/logger';
+import AppError from '../errors/error';
+import ApiErrorTypes from '../types/error';
 
 class UserService {
   private db: Database | undefined;
@@ -23,7 +25,9 @@ class UserService {
 
   async createUser(user: CreateUserDTO): Promise<User> {
     if (!this.db) {
-      throw new Error(
+      throw new AppError(
+        500,
+        ApiErrorTypes.ServerError,
         `Database is not connected with error ${this.dbConnectionError}`,
       );
     }
@@ -39,7 +43,7 @@ class UserService {
       email,
     ]);
 
-    if (emailExists) throw new Error(`User with the provided email = ${email} already exists use a different email address`);
+    if (emailExists) throw new AppError(400, ApiErrorTypes.ValidationError, `User with the provided email = ${email} already exists use a different email address`);
 
     const newUser = await this.db.run(
       'INSERT INTO users (fullName, email, password, userType, createdAt) VALUES (?, ?, ?, ?, ?)',
@@ -47,7 +51,7 @@ class UserService {
     );
 
     if (newUser.lastID === undefined) {
-      throw new Error('Failed to create user');
+      throw new AppError(500, ApiErrorTypes.ServerError, 'Failed to create user');
     }
 
     return {
@@ -61,10 +65,13 @@ class UserService {
 
   async getUserById(id: number): Promise<User | null> {
     if (!this.db) {
-      throw new Error(
+      throw new AppError(
+        500,
+        ApiErrorTypes.ServerError,
         `Database is not connected with error ${this.dbConnectionError}`,
       );
     }
+
     const user = await this.db.get<User | null>(
       'SELECT * FROM users WHERE id = ?',
       [id],

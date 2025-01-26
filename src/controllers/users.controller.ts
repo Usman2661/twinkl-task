@@ -1,8 +1,9 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 
 import UserService from '../services/users.service';
 import userValidationSchema from '../database/userSchema';
-import logger from '../logger/logger';
+import AppError from '../errors/error';
+import ApiErrorTypes from '../types/error';
 
 class UserController {
   private userService: UserService;
@@ -11,19 +12,17 @@ class UserController {
     this.userService = userService;
   }
 
-  async createUser(req: Request, res: Response): Promise<Response> {
+  async createUser(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { error } = userValidationSchema.validate(req.body, {
         abortEarly: false,
       });
 
       if (error) {
-        return res.status(400).json({
-          errors: error.details.map((detail) => ({
-            message: detail.message,
-            path: detail.path,
-          })),
-        });
+        throw new AppError(400, ApiErrorTypes.ValidationError, error.message || 'Some fields are missing or incompatible type', error.details.map((detail) => ({
+          message: detail.message,
+          path: detail.path,
+        })));
       }
 
       const {
@@ -38,31 +37,29 @@ class UserController {
         createdAt,
       });
 
-      return res.status(201).json(newUser);
+      res.status(201).json(newUser);
     } catch (error: Error | any) {
-      logger.error(error);
-      return res.status(500).json({ error: error.message });
+      next(error);
     }
   }
 
-  async getUserById(req: Request, res: Response): Promise<Response> {
+  async getUserById(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const { id } = req.params;
 
       if (!Number.isInteger(Number(id))) {
-        throw new Error('Invalid is provided it must be a number');
+        throw new AppError(400, ApiErrorTypes.ValidationError, `Invalid ID provided; it must be a number provided id = ${id}`);
       }
 
       const user = await this.userService.getUserById(Number(id));
 
       if (!user) {
-        throw new Error(`User not found with id=${id}`);
+        throw new AppError(404, ApiErrorTypes.NotFoundError, `User not found with id=${id}`);
       }
 
-      return res.status(200).json(user);
+      res.status(200).json(user);
     } catch (error: Error | any) {
-      logger.error(error);
-      return res.status(500).json({ error: error.message });
+      next(error);
     }
   }
 }
