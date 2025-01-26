@@ -1,13 +1,13 @@
-export interface User extends CreateUserDTO {
-  id: string;
-  createdAt: Date;
+export interface User extends Omit<CreateUserDTO, 'password'> {
+  id: number;
 }
 
 export interface CreateUserDTO {
-  name: string;
+  fullName: string;
   email: string;
   password: string;
-  userType: string;
+  userType: UserType;
+  createdAt: Date | string;
 }
 
 export enum UserType {

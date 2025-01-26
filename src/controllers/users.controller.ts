@@ -12,14 +12,15 @@ class UserController {
   async createUser(req: Request, res: Response): Promise<Response> {
     try {
       const {
-        name, email, password, userType,
+        fullName, email, password, userType, createdAt,
       } = req.body;
 
       const newUser = await this.userService.createUser({
-        name,
+        fullName,
         email,
         password,
         userType,
+        createdAt,
       });
 
       return res.status(201).json(newUser);
@@ -32,7 +33,7 @@ class UserController {
     try {
       const { id } = req.params;
 
-      const user = await this.userService.getUserById(id);
+      const user = await this.userService.getUserById(Number(id));
 
       if (!user) {
         return res.status(404).json({ error: 'User not found' });

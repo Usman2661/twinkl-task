@@ -2,28 +2,33 @@ import sqlite3 from 'sqlite3';
 
 import { open, Database } from 'sqlite';
 
-const connectDB = async (createSchema: boolean = false): Promise<
-Database<sqlite3.Database, sqlite3.Statement>
-> => {
-  const db = await open({
-    filename: './src/database/database.sqlite',
-    driver: sqlite3.Database,
-  });
+const connectDB = async (
+  createSchema: boolean = false,
+): Promise<Database<sqlite3.Database, sqlite3.Statement>> => {
+  try {
+    const db = await open({
+      filename: './src/database/database.sqlite',
+      driver: sqlite3.Database,
+    });
 
-  if (createSchema) {
-    await db.exec(`
+    if (createSchema) {
+      await db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      full_name TEXT NOT NULL,
+      fullName TEXT NOT NULL,
       password TEXT NOT NULL,
       email TEXT NOT NULL UNIQUE,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-      user_type TEXT CHECK(user_type IN ('student', 'teacher', 'parent', 'private tutor')) NOT NULL
+      createdAt DATETIME,
+      userType TEXT CHECK(userType IN ('student', 'teacher', 'parent', 'private tutor')) NOT NULL
     );
   `);
-  }
+    }
 
-  return db;
+    return db;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
 };
 
 export default connectDB;
