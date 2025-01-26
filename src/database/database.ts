@@ -2,7 +2,7 @@ import sqlite3 from 'sqlite3';
 
 import { open, Database } from 'sqlite';
 
-const connectDB = async (): Promise<
+const connectDB = async (createSchema: boolean = false): Promise<
 Database<sqlite3.Database, sqlite3.Statement>
 > => {
   const db = await open({
@@ -10,7 +10,8 @@ Database<sqlite3.Database, sqlite3.Statement>
     driver: sqlite3.Database,
   });
 
-  await db.exec(`
+  if (createSchema) {
+    await db.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       full_name TEXT NOT NULL,
@@ -20,6 +21,7 @@ Database<sqlite3.Database, sqlite3.Statement>
       user_type TEXT CHECK(user_type IN ('student', 'teacher', 'parent', 'private tutor')) NOT NULL
     );
   `);
+  }
 
   return db;
 };

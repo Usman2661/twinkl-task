@@ -15,4 +15,4 @@ app.use(express.json());
 app.use('/api', router);
 
 // eslint-disable-next-line no-console
-connectDB().then(() => console.log('[database]: Database connected and schema synchronized.')).catch((error) => console.error(error));
+connectDB(true).then(() => console.log('[database]: Database connected and schema synchronized.')).catch((error) => console.error(error));
