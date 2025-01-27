@@ -2,7 +2,7 @@ import { Database } from 'sqlite';
 import bcrypt from 'bcrypt';
 
 import { CreateUserDTO, User } from '../types/user';
-import connectDB from '../database/database';
+import { connectDB } from '../database/database';
 import logger from '../logger/logger';
 import AppError from '../errors/error';
 import ApiErrorTypes from '../types/error';

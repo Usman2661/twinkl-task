@@ -7,6 +7,8 @@ const errorHandler = (
   err: AppError,
   req: Request,
   res: Response,
+  // This is because the next function is needed regardless of usage in the middleware
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   next: NextFunction,
 ): void => {
   const statusCode = err.statusCode || 500;

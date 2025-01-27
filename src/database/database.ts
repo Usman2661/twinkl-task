@@ -3,17 +3,23 @@ import sqlite3 from 'sqlite3';
 import { open, Database } from 'sqlite';
 import logger from '../logger/logger';
 
+let dbInstance: Database<sqlite3.Database, sqlite3.Statement> | null = null;
+
 const connectDB = async (
   createSchema: boolean = false,
 ): Promise<Database<sqlite3.Database, sqlite3.Statement>> => {
   try {
-    const db = await open({
+    if (dbInstance) {
+      return dbInstance;
+    }
+
+    dbInstance = await open({
       filename: './src/database/database.sqlite',
       driver: sqlite3.Database,
     });
 
     if (createSchema) {
-      await db.exec(`
+      await dbInstance.exec(`
     CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       fullName TEXT NOT NULL,
@@ -25,11 +31,23 @@ const connectDB = async (
   `);
     }
 
-    return db;
+    return dbInstance;
   } catch (error) {
     logger.error(error);
     throw error;
   }
 };
 
-export default connectDB;
+const closeDb = async (): Promise<void> => {
+  try {
+    if (dbInstance) {
+      await dbInstance.close();
+      dbInstance = null;
+      logger.info('Database connection closed successfully');
+    }
+  } catch (error) {
+    logger.error('Error closing the database connection:', error);
+  }
+};
+
+export { connectDB, closeDb };
