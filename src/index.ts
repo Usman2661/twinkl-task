@@ -23,3 +23,5 @@ process.on('SIGINT', async () => {
   logger.info('Sever shutting down gracefully');
   process.exit(0);
 });
+
+export default app;
