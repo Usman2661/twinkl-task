@@ -73,7 +73,7 @@ class UserService {
     }
 
     const user = await this.db.get<User | null>(
-      'SELECT * FROM users WHERE id = ?',
+      'SELECT id, fullName, email, userType, createdAt FROM users WHERE id = ?',
       [id],
     );
 
