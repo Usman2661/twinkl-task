@@ -6,7 +6,8 @@
     "build": "npx tsc",
     "start": "node dist/index.js",
     "dev": "nodemon src/index.ts",
-    "test": "LOG_LEVEL=silent jest",
+    "test:api": "LOG_LEVEL=silent jest tests/apiTests",
+    "test": "jest tests/unit",
     "lint": "eslint . --ext .ts",
     "lint:fix": "eslint . --ext .ts --fix"
   },
