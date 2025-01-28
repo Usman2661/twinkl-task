@@ -62,19 +62,20 @@ A simple TypeScript application showcasing best practices in structure, validati
 
 ---
 
-## Error Handling
-
-- A centralized error handling middleware is added in order to keep the structure of the errors consistent with message, type, and status code. This ensures it can be used by front-end or other apps that may consume the app and expect consistent error messaging. We have also added error logging so that we can monitor the app logs over time and address bugs and issues through the logs.
-
----
-
 ## Questions and Answers
 
 ### Was the entire structure (middleware and folders) an overkill for only 2 endpoints? Why was it not just done in `index.ts`?
 - Although it may seem like an overkill to separate everything for such a small app and add middleware, this is done with the mindset that the application will grow. Having a structured codebase makes the app more maintainable, readable, and testable in the long run.
 
+### How is error handling managed efficiently ?
+- A centralized error handling middleware is added in order to keep the structure of the errors consistent with message, type, and status code. This ensures it can be used by front-end or other apps that may consume the app and expect consistent error messaging. We have also added error logging so that we can monitor the app logs over time and address bugs and issues through the logs.
+
 ### Why was Joi used instead of building in-house validation?
 - Joi was used instead of in-house validation as it supports most major types of validation (emails, numbers, names, etc.). This allows us to save time and focus on app development rather than constantly updating in-house validation rules. Additionally, Joi is a highly tested library already.
 
-### Why was the password hashed and omitted from the response in both the creation and "get by ID" endpoints?
-- In a real-world scenario, passwords would never be stored in their raw format in the database due to security concerns, so they have been hashed. The password is omitted from the API return JSON as it is a bad practice to return the password for security reasons. The password is only used for user profile verification.
+### Why was the password hashed and excluded from the response in both the creation and "get by ID" endpoints?
+- In a real-world scenario, passwords would never be stored in their raw format in the database due to security concerns, so they have been hashed. The password is excluded from the API return JSON as it is a bad practice to return the password for security reasons. The password is only used for user profile verification.
+
+### How to stop introduction of new bugs in the app with changes ?
+- A good coverage on unit and api tests suites are added to the app these would be run by other developers between they submit new MR requests hence if they break any existing functionality it could be caught in the unit/api tests.
+
