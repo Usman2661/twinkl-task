@@ -1,90 +1,80 @@
-# Twinkl TypeScript Test
+## Overview
 
-- [Task](#task)
-- [Development Environment Setup](#setup)
-- [What we are looking for](#what-we-are-looking-for)
+A simple TypeScript application showcasing best practices in structure, validation, logging, and error handling.
 
-## Task
+---
 
-Your task is to implement a backend API (no front-end is required).
+## Libraries Used
 
-These are the requirements for the system:
+- **sqlite**, **sqlite3**: For lightweight database storage.
+- **joi**: For input validation.
+- **pino**: For logging.
+- **bcrypt**: For password encryption.
 
-1. User Signup Endpoint
-    1. A `POST` endpoint, that accepts JSON, containing the user full name, password, email address, created date, and the user type (one of a student, teacher, parent or private tutor).
-    1. Validation. The app should check that the fields submitted are not empty. The app should also check that the password matches the following rules:
-        1. Between 8 and 64 characters
-        1. Must contain at least one digit (0-9)
-        1. Must contain at least one lowercase letter (a-z)
-        1. Must contain at least one uppercase letter (A-Z)
-    1. When validation fails the app should return an appropriate status code with error/s that can be used by the client
-1. Save the signup information to a data store. We recommend an in-memory data store (i.e an array) or a lightweight file database like SQLLite.
-1. User Signup Details
-    1. A `GET` endpoint that takes a user ID and returns the user details as JSON.
-1. Create whatever level of testing and documentation you consider appropriate
+---
 
-## What we are looking for
+## Run the App
 
-* Submit something that we can run locally
-* Commiting changes with good messages as you go is very helpful
-* You can update the README or add a NOTES.md detailing any decisions/tradeoffs you made, or changes you would make with more time
-* Clean, secure, modular code written to your own standards of what good looks like. Add concise comments in the code if you want to explain a decision. 
-* Pragmatism. We are not looking for complex solutions, and there is no hidden trick requirement in our task ;) 
-* Feel free to install and use additional packages
+1. **Install Dependencies**  
+   Install the necessary dependencies:  
+   ```bash
+   npm install
+   ```
+2. **Run in Development Mode**  
+   Start the application in development mode. This will automatically create a lightweight SQLite database if it does not already exist:  
+   ```bash
+   npm run dev
+   ```
+3. **Run Unit Tests**  
+   ```bash
+   npm run test
+   ```
 
-## Setup
+3. **Run Api Tests**  
+    ```bash
+    npm run test:api
+    ```
+4. **Build the app**  
+    ```bash
+    npm run build 
+    ```
 
-### Prerequisites
+## App Screenshots
 
-Before you begin, ensure you have the following installed on your machine:
+- **Validation of the POST /users API(with validation criteria defined)** 
+![Screenshot of POST /users API Validation](screenshots/createValidationFailure.png)
+![Screenshot of POST /users API Validation](screenshots/createUserEmailAndPassword.png)
+![Screenshot of POST /users API Validation](screenshots/createUserEmailFailure.png)
+![Screenshot of POST /users API Validation](screenshots/createUserPassowrdValidation.png)
+![Screenshot of POST /users API Validation](screenshots/createValidationFailure.png)
+![Screenshot of POST /users API Validation](screenshots/createUserSuccess.png)
 
-- [Node.js](https://nodejs.org/): Ensure that Node.js, preferably version 16 or higher, is installed on your system, as this project utilizes the latest versions of TypeScript and Nodemon.
-- [npm](https://www.npmjs.com/): npm is the package manager for Node.js and comes with the Node.js installation.
+- **Get single user by ID (validation and error handling.)** 
+![Screenshot of POST /users API Validation](screenshots/getByIdImvalidId.png)
+![Screenshot of POST /users API Validation](screenshots/getByIdNotFound.png)
+![Screenshot of POST /users API Validation](screenshots/getById.png)
 
-### Installation
+- **API Tests**
+![Screenshot of POST /users API Validation](screenshots/apiTests.png)
 
-This will install a basic [Express](https://expressjs.com/) app with Typescript.
+- **Unit Tests**
+![Screenshot of POST /users API Validation](screenshots/unitTests.png)
 
-If you have been provided with a Github URL, clone the repository to your local machine:
+---
 
-```
-git clone https://github.com/twinkltech/twinkl-typescript-tech-test.git
-```
+## Error Handling
 
-If you have been provided with a zip file, download to your computer and unzip.
+- A centralized error handling middleware is added in order to keep the structure of the errors consistent with message, type, and status code. This ensures it can be used by front-end or other apps that may consume the app and expect consistent error messaging. We have also added error logging so that we can monitor the app logs over time and address bugs and issues through the logs.
 
-Navigate to the directory:
+---
 
-```
-cd twinkl-typescript-tech-test
-```
+## Questions and Answers
 
-Install the dependencies:
+### Was the entire structure (middleware and folders) an overkill for only 2 endpoints? Why was it not just done in `index.ts`?
+- Although it may seem like an overkill to separate everything for such a small app and add middleware, this is done with the mindset that the application will grow. Having a structured codebase makes the app more maintainable, readable, and testable in the long run.
 
-```
-npm i
-```
+### Why was Joi used instead of building in-house validation?
+- Joi was used instead of in-house validation as it supports most major types of validation (emails, numbers, names, etc.). This allows us to save time and focus on app development rather than constantly updating in-house validation rules. Additionally, Joi is a highly tested library already.
 
-### Usage
-
-In development the following command will start the server and use `nodemon` to auto-reload the server based on file changes
-
-```
-npm run dev
-```
-
-The server will start at `http://localhost:3000` by default. You can change the port in `src/index.ts` 
-
-There are no tests in the project at the moment, but a command is available to run:
-
-```
-npm run test
-```
-
-There are also commands to build and start a server without nodemon:
-
-```
-npm run build
-npm start
-```
-
+### Why was the password hashed and omitted from the response in both the creation and "get by ID" endpoints?
+- In a real-world scenario, passwords would never be stored in their raw format in the database due to security concerns, so they have been hashed. The password is omitted from the API return JSON as it is a bad practice to return the password for security reasons. The password is only used for user profile verification.
