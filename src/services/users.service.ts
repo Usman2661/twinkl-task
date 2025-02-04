@@ -39,11 +39,18 @@ class UserService {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-    const emailExists = await this.db.get('SELECT id FROM users WHERE email = ?', [
-      email,
-    ]);
+    const emailExists = await this.db.get(
+      'SELECT id FROM users WHERE email = ?',
+      [email],
+    );
 
-    if (emailExists) throw new AppError(400, ApiErrorTypes.ValidationError, `User with the provided email = ${email} already exists use a different email address`);
+    if (emailExists) {
+      throw new AppError(
+        400,
+        ApiErrorTypes.ValidationError,
+        `User with the provided email = ${email} already exists use a different email address`,
+      );
+    }
 
     const newUser = await this.db.run(
       'INSERT INTO users (fullName, email, password, userType, createdAt) VALUES (?, ?, ?, ?, ?)',
@@ -51,7 +58,11 @@ class UserService {
     );
 
     if (newUser.lastID === undefined) {
-      throw new AppError(500, ApiErrorTypes.ServerError, 'Failed to create user');
+      throw new AppError(
+        500,
+        ApiErrorTypes.ServerError,
+        'Failed to create user',
+      );
     }
 
     return {
@@ -73,11 +84,56 @@ class UserService {
     }
 
     const user = await this.db.get<User | null>(
-      'SELECT id, fullName, email, userType, createdAt FROM users WHERE id = ?',
+      'SELECT id, fullName, email, userType, createdAt FROM users WHERE deletedAt IS NULL AND id = ?',
       [id],
     );
 
     return user || null;
+  }
+
+  async softDeleteUserBydId(id: number): Promise<User | null> {
+    if (!this.db) {
+      throw new AppError(
+        500,
+        ApiErrorTypes.ServerError,
+        `Database is not connected with error ${this.dbConnectionError}`,
+      );
+    }
+
+    const user = await this.db.get<User | null>(
+      'SELECT id, fullName, email, userType, createdAt FROM users WHERE deletedAt IS NULL AND id = ?',
+      [id],
+    );
+
+    if (!user) {
+      throw new AppError(
+        404,
+        ApiErrorTypes.NotFoundError,
+        `There is no user with id = ${id}`,
+      );
+    }
+
+    const currentDate = new Date(Date.now());
+    const createdAtDate = new Date(user.createdAt);
+    const differnceInMs = currentDate.getMilliseconds() - createdAtDate.getMilliseconds();
+    const differenceInDays = differnceInMs / (1000 * 60 * 60 * 24);
+    if (differenceInDays > 14) {
+      throw new AppError(
+        400,
+        ApiErrorTypes.ValidationError,
+        'User is over the trial period of 14 days',
+      );
+    }
+    const deletedAt = UserService.formatDate(new Date());
+    await this.db.run('UPDATE users SET deletedAt = ? WHERE id = ?', [
+      deletedAt,
+      id,
+    ]);
+
+    return {
+      ...user,
+      deletedAt,
+    };
   }
 
   static formatDate(date: Date): string {

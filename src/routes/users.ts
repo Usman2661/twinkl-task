@@ -10,5 +10,9 @@ const userRoutes = Router();
 
 userRoutes.post('', userController.createUser.bind(userController));
 userRoutes.get('/:id', userController.getUserById.bind(userController));
+userRoutes.delete(
+  '/admin/:id',
+  userController.deleteUserById.bind(userController),
+);
 
 export default userRoutes;

@@ -16,7 +16,9 @@ app.use(pinoHttp({ logger }));
 app.use(express.json());
 app.use('/api', router);
 
-connectDB(true).then(() => logger.info('Database connected and schema synchronized.')).catch((error) => logger.error(error));
+connectDB(true, true)
+  .then(() => logger.info('Database connected and schema synchronized.'))
+  .catch((error) => logger.error(error));
 
 process.on('SIGINT', async () => {
   await closeDb();

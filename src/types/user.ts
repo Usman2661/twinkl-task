@@ -1,6 +1,7 @@
 export interface User extends Omit<CreateUserDTO, 'password'> {
   id: number;
   createdAt: Date | string;
+  deletedAt?: Date | string | null;
 }
 
 export interface CreateUserDTO {

@@ -7,6 +7,7 @@ let dbInstance: Database<sqlite3.Database, sqlite3.Statement> | null = null;
 
 const connectDB = async (
   createSchema: boolean = false,
+  runMigrations: boolean = false,
 ): Promise<Database<sqlite3.Database, sqlite3.Statement>> => {
   try {
     if (dbInstance) {
@@ -29,6 +30,16 @@ const connectDB = async (
       userType TEXT CHECK(userType IN ('student', 'teacher', 'parent', 'private tutor')) NOT NULL
     );
   `);
+
+      await dbInstance.exec(`
+      ALTER TABLE users ADD COLUMN deletedAt DATETIME;
+  `);
+    }
+
+    if (runMigrations) {
+      await dbInstance.migrate({
+        migrationsPath: './src/database/migrations',
+      });
     }
 
     return dbInstance;
